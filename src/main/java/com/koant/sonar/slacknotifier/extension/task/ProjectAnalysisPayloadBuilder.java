@@ -30,6 +30,11 @@ class ProjectAnalysisPayloadBuilder {
     private static final String SLACK_GOOD_COLOUR = "good";
     private static final String SLACK_WARNING_COLOUR = "warning";
     private static final String SLACK_DANGER_COLOUR = "danger";
+    
+    private static final String SLACK_GOOD_EMOJI = ":sunny:";
+    private static final String SLACK_WARNING_EMOJI = ":partly_sunny:";
+    private static final String SLACK_DANGER_EMOJI = ":cloudy:";
+
     private static final Map<QualityGate.Status, String> statusToColor = new EnumMap<>(QualityGate.Status.class);
 
     static {
@@ -108,7 +113,7 @@ class ProjectAnalysisPayloadBuilder {
         }
         shortText.append(". ");
         shortText.append(format("See %s", projectUrl));
-        shortText.append(qualityGate == null ? "." : format(". Quality gate status: %s", qualityGate.getStatus()));
+        shortText.append(qualityGate == null ? "." : format(". Quality gate status: %s %s", qualityGate.getStatus(), getQualityEmoji(qualityGate)));
 
         final Payload.PayloadBuilder builder = Payload.builder()
             .channel(projectConfig.getSlackChannel())
@@ -127,6 +132,24 @@ class ProjectAnalysisPayloadBuilder {
         if (object == null) {
             throw new IllegalArgumentException("[Assertion failed] - " + argumentName + " argument is required; it must not be null");
         }
+    }
+
+    private String getQualityEmoji (final QualityGate qualityGate) {        
+        String qualityEmoji = "";
+        switch(qualityGate.getStatus()){
+            case OK: 
+                qualityEmoji = SLACK_GOOD_EMOJI;
+            break;
+            case WARN: 
+                qualityEmoji = SLACK_WARNING_EMOJI;
+            break;
+            case ERROR: 
+                qualityEmoji = SLACK_DANGER_EMOJI;
+            break;
+            default: 
+            break;
+        }
+        return qualityEmoji;
     }
 
     private List<Attachment> buildConditionsAttachment(final QualityGate qualityGate, final boolean qgFailOnly) {

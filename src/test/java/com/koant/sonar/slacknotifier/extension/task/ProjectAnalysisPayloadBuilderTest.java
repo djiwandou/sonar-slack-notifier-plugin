@@ -120,7 +120,7 @@ public class ProjectAnalysisPayloadBuilderTest {
                 .build());
         return Payload.builder()
                 .text("Project [Sonar Project Name] analyzed. See "
-                    + "http://localhist:9000/dashboard?id=project:key. Quality gate status: OK")
+                    + "http://localhist:9000/dashboard?id=project:key. Quality gate status: OK :sunny:")
                 .channel("#channel")
                 .username("CKSSlackNotifier")
                 .attachments(attachments)
@@ -246,7 +246,7 @@ public class ProjectAnalysisPayloadBuilderTest {
             .username("CKSSlackNotifier")
             .includeBranch(true)
             .build();
-        Assert.assertEquals("Project [Sonar Project Name] analyzed. See http://localhost:9000/dashboard?id=project:key. Quality gate status: OK", payload.getText());
+        Assert.assertEquals("Project [Sonar Project Name] analyzed. See http://localhost:9000/dashboard?id=project:key. Quality gate status: OK :sunny:", payload.getText());
     }
 
     private Branch newBranch(final String name, final boolean isMain) {
