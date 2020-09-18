@@ -32,6 +32,11 @@ class ProjectAnalysisPayloadBuilder {
     private static final String SLACK_DANGER_COLOUR = "danger";
     private static final Map<QualityGate.Status, String> statusToColor = new EnumMap<>(QualityGate.Status.class);
 
+    private static final String SLACK_GOOD_COLOUR_ASCII = "\u001B32;1m";
+    private static final String SLACK_WARNING_COLOUR_ASCII = "\u001B33;1m";
+    private static final String SLACK_DANGER_COLOUR_ASCII = "\u001B31;1m";
+
+
     static {
         statusToColor.put(QualityGate.Status.OK, SLACK_GOOD_COLOUR);
         statusToColor.put(QualityGate.Status.WARN, SLACK_WARNING_COLOUR);
@@ -107,8 +112,8 @@ class ProjectAnalysisPayloadBuilder {
             shortText.append(format(" for branch [%s]", branch.get().getName().orElse("")));
         }
         shortText.append(". ");
-        shortText.append(format("See %s", projectUrl));
-        shortText.append(qualityGate == null ? "." : format(". Quality gate status: %s", qualityGate.getStatus()));
+        shortText.append(format("\nSee %s", projectUrl));
+        shortText.append(qualityGate == null ? "." : format(". \nQuality gate status: %s", statusColorCombine(qualityGate.getStatus())));
 
         final Payload.PayloadBuilder builder = Payload.builder()
             .channel(projectConfig.getSlackChannel())
@@ -127,6 +132,24 @@ class ProjectAnalysisPayloadBuilder {
         if (object == null) {
             throw new IllegalArgumentException("[Assertion failed] - " + argumentName + " argument is required; it must not be null");
         }
+    }
+
+    private String statusColorCombine(final String qualityStatusString) {
+        final String qualityColorAscii = SLACK_GOOD_COLOUR_ASCII;
+        switch(qualityStatusString) {
+            case "OK":
+                qualityColorAscii = SLACK_GOOD_COLOUR_ASCII;
+                break;
+            case "WARNING":
+                qualityColorAscii = SLACK_WARNING_COLOUR_ASCII;
+                break;
+            case "ERROR":
+                qualityColorAscii = SLACK_DANGER_COLOUR_ASCII;
+                break;
+            default:
+                break;
+        }
+        return qualityColorAscii+qualityStatusString;
     }
 
     private List<Attachment> buildConditionsAttachment(final QualityGate qualityGate, final boolean qgFailOnly) {
